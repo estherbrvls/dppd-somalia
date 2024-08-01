@@ -1,0 +1,329 @@
+/**** Start of imports. If edited, may not auto-convert in the playground. ****/
+var AOI = 
+    /* color: #d63000 */
+    /* shown: false */
+    ee.Geometry.Polygon(
+        [[[42.6969273382277, 10.626955425838203],
+          [42.7298863226027, 10.500053863180446],
+          [42.75460556088395, 10.367696754966003],
+          [42.8232701116652, 10.227174959570684],
+          [42.9331333929152, 10.156890683221844],
+          [43.06222274838395, 10.135261639130054],
+          [43.15011337338395, 10.086590957524598],
+          [43.27645614682145, 10.032503796932806],
+          [43.34237411557145, 9.981112625610626],
+          [43.49068954525895, 9.897246472518834],
+          [43.5263951116652, 9.767346997456965],
+          [43.61703231869645, 9.767346997456965],
+          [43.8779576116652, 9.73757120124576],
+          [44.03451278744645, 9.64552016622288],
+          [44.21578720150895, 9.710499990852151],
+          [44.4272740179152, 9.67259662020326],
+          [44.51241806088395, 9.591360739592723],
+          [44.8117955022902, 9.542609856494792],
+          [44.8777134710402, 9.447796539061525],
+          [44.9765904241652, 9.474888734258311],
+          [44.9436314397902, 9.569694543639008],
+          [45.33089950619645, 9.837715550024717],
+          [45.45174911557145, 9.894540755108219],
+          [45.5423863226027, 9.851246249382154],
+          [45.6852085882277, 9.742985180135944],
+          [45.6852085882277, 9.634688975344446],
+          [45.7346470647902, 9.577819529162905],
+          [45.7676060491652, 9.426121247644938],
+          [45.8170445257277, 9.464052112385957],
+          [45.90218856869645, 9.46134290351701],
+          [45.9378941351027, 9.371927069547828],
+          [46.00655868588395, 9.296041015235366],
+          [46.19881942807145, 9.258091809249843],
+          [46.1359680651578, 9.616901175455844],
+          [46.1634338854703, 9.671056505666439],
+          [46.07828984250155, 9.86594314330297],
+          [46.1469543932828, 9.86323716840692],
+          [46.41337285031405, 9.884884344922003],
+          [46.3831604479703, 10.549824896390849],
+          [45.7679260729703, 10.54172432783415],
+          [45.2845276354703, 10.35265088636339],
+          [45.04008183468905, 10.412086351346021],
+          [44.98515019406405, 10.33373723664987],
+          [44.52921757687655, 10.298608868175071],
+          [44.26554570187655, 10.406683594390522],
+          [44.18314824093905, 10.463407866943163],
+          [44.1199768542203, 10.395877799827772],
+          [43.9881409167203, 10.37426508939521],
+          [43.84257206906405, 10.466108764557791],
+          [43.69425663937655, 10.528222906690429],
+          [43.5706604479703, 10.474211316263844],
+          [43.38663945187655, 10.320226789695784],
+          [43.12846074093905, 10.38507163137218],
+          [42.9554260729703, 10.552525038520095],
+          [42.8510559557828, 10.587624726986277],
+          [42.9499329089078, 10.703694996148602],
+          [43.0378235339078, 10.814325278235486],
+          [43.06803593625155, 10.941095154500683],
+          [42.9279602526578, 10.959971151699436]]]),
+    AOI_small = 
+    /* color: #d63000 */
+    /* shown: false */
+    /* displayProperties: [
+      {
+        "type": "rectangle"
+      }
+    ] */
+    ee.Geometry.Polygon(
+        [[[44.79611170621758, 10.158086005043208],
+          [44.79611170621758, 10.137132968926812],
+          [44.81877100797539, 10.137132968926812],
+          [44.81877100797539, 10.158086005043208]]], null, false);
+/***** End of imports. If edited, may not auto-convert in the playground. *****/
+
+// ****************************************************
+//            Define area
+// ****************************************************
+
+// var zones_fc = ee.FeatureCollection("users/estherbarvels/DPPD/somaliland/SO_LHZ_2015")
+// var zone_westGolis = zones_fc.filterMetadata('LZNAMEEN', 'equals', 'West Golis Pastoral').first().geometry()
+// Map.addLayer(zone_westGolis, {} , 'zone_westGolis')
+
+
+// var bounds = zone_westGolis
+var bounds = AOI 
+
+var settlements_fc = ee.FeatureCollection("users/estherbarvels/DPPD/somaliland/SOM_Settlements_west_Golis_UTM38N_buffer_5k")
+                    .select('object_id', 'NAME_min')
+print('Number of settlements:',settlements_fc.size())
+var settl_diss = settlements_fc.geometry().dissolve()
+
+
+
+// ****************************************************
+//            Land cover dataset
+// ****************************************************
+
+
+//// Land Cover images 16-19
+var lc_probav2016 = ee.Image('COPERNICUS/Landcover/100m/Proba-V-C3/Global/2016').select('discrete_classification').clip(bounds)
+var lc_probav2017 = ee.Image('COPERNICUS/Landcover/100m/Proba-V-C3/Global/2017').select('discrete_classification').clip(bounds)
+var lc_probav2018 = ee.Image('COPERNICUS/Landcover/100m/Proba-V-C3/Global/2018').select('discrete_classification').clip(bounds)
+var lc_probav2019 = ee.Image('COPERNICUS/Landcover/100m/Proba-V-C3/Global/2019').select('discrete_classification').clip(bounds)
+
+// Merge all land cover to single image
+var lc_probav_allyears = lc_probav2016.rename('class_2016')
+                .addBands(lc_probav2017.rename('class_2017'))
+                .addBands(lc_probav2018.rename('class_2018'))
+                .addBands(lc_probav2019.rename('class_2019'))
+print('lc_probav_allyears', lc_probav_allyears)
+                        
+
+
+// print all land cover classes that exist 
+var lc_classes = ee.Dictionary( 
+      lc_probav2019.reduceRegion(
+        {reducer:ee.Reducer.frequencyHistogram(), geometry: bounds, scale:100, maxPixels:1e13})
+        .get('discrete_classification')
+    ).keys();
+print('LC classes', lc_classes)
+
+
+// print all land cover classes that exist 
+var lc_classes_ally = 
+      lc_probav_allyears.reduceRegion(
+        {reducer:ee.Reducer.frequencyHistogram(), geometry: bounds, scale:100, maxPixels:1e13});
+print('LC lc_classes_ally', lc_classes_ally)
+
+
+// ****************************************************
+//            Precipitation dataset
+// ****************************************************
+
+var from_ = '2016-01-01'
+var until_ = '2020-11-30'
+
+// Define start and end month of rainy season
+var rainy_season_start = 4
+var rainy_season_end = 11
+
+var chirps_daily = ee.ImageCollection('UCSB-CHG/CHIRPS/DAILY')
+                  .filter(ee.Filter.date(from_, until_)).filter(ee.Filter.calendarRange(rainy_season_start,rainy_season_end,'month'))
+                  .map(clipFunc)
+                  
+                  
+// Aggregate precipitation annually
+var start_year = 2016
+var end_year = 2020
+var yearList = make_yearList(start_year, end_year)
+
+var precip_annually = aggregate_annually(chirps_daily, yearList)
+var precip_seasonalSum_5ymean = precip_annually.select('precipitation_sum').reduce(ee.Reducer.mean()).rename('mean')
+
+
+
+// ****************************************************
+//            Clustering
+// ****************************************************
+
+
+// Stack all LC classes into one image 
+var prefix_lc = 'LC_class'
+
+var landCover2019 = make_binary_img(lc_probav2019, lc_classes, prefix_lc)
+print('binary bands', landCover2019)
+
+// Combine precipitation and LC to one image
+var input = precip_seasonalSum_5ymean.addBands(landCover2019) 
+// var input = precip_seasonalSum_5ymean.addBands(landCover2016).addBands(landCover2017).addBands(landCover2018).addBands(landCover2019)
+
+
+print('Classification input', input)
+
+
+// Export input
+// var img_to_export = precip_seasonalSum_5ymean.addBands(lc_probav2019).toFloat()
+
+// // Export cluster input to validate in python
+// // Export.image.toDrive({
+// //   image: img_to_export,
+// //   description: 'precip_lc2019_numerical',
+// //   region: geometry.bounds(),
+// //   scale: 100,
+// //   maxPixels:10e12
+// // });
+
+
+
+// // Determine cluster parameters 
+var distFunction = 'Eucledian' //'Manhattan'
+var number_of_samples = 100000
+
+var sample_param = {
+  region: bounds,
+  scale: 100,
+  numPixels: number_of_samples
+}
+
+// Define min and max cluster
+var  minClusters= 2; var maxClusters=18
+
+// K-means
+var clust_kmeans = ee.Clusterer.wekaCascadeKMeans({
+  minClusters: minClusters, maxClusters:maxClusters,
+  distanceFunction: distFunction
+})
+
+// X-means
+var clust_xmeans = ee.Clusterer.wekaXMeans({
+  minClusters: minClusters, maxClusters:maxClusters,
+  distanceFunction: distFunction
+})
+
+// Make the training dataset.
+var training = input.sample(sample_param);
+
+// Instantiate the clusterer and train it.
+
+// K-means
+var clusterer = clust_kmeans.train(training);
+var clusters = input.cluster(clusterer); // Cluster the input using the trained clusterer.
+print('clusters', clusters)
+print('Min and max cluster value',clusters.reduceRegion({reducer: ee.Reducer.minMax(), geometry: bounds, scale: 100}))
+
+
+// X-means
+var clusterer = clust_xmeans.train(training);
+var clusters_x = input.cluster(clusterer); // Cluster the input using the trained clusterer.
+print('clusters_xmeans', clusters_x)
+print('Min and max cluster value',clusters_x.reduceRegion({reducer: ee.Reducer.minMax(), geometry: bounds, scale: 100}))
+
+
+// ****************************************************
+//            Visualise 
+// ****************************************************
+// Colour palettes
+var palette = ['red', 'white', 'green']
+var palette_redToGreen =  ["ff0000","fb8200","ffe108","60e010","00800a"] // red to green 
+var palette_colorblind = ['DA0606', 'FFC647','FFFFFF', '8DACFF', '205DFF'] // red to blue 
+var palette_categorical = ['a6cee3','1f78b4','b2df8a','33a02c','fb9a99','e31a1c','fdbf6f','ff7f00','cab2d6','6a3d9a','ffff99','b15928']
+
+
+Map.addLayer(clusters, {palette: palette_categorical, min:0, max: 11, band:['cluster']}, 'clusters k-mean',false);
+Map.addLayer(clusters_x, {palette: palette_categorical, min:0, max: 11, band:['cluster']}, 'clusters x-means',false);
+
+Map.setOptions('HYBRID')
+Map.centerObject(bounds,11)
+
+
+// ****************************************************
+//            Export 
+// ****************************************************
+
+Export.image.toDrive({
+  image: clusters_x,
+  description: 'clusters_xmeans_max18',
+  region: bounds,
+  scale: 100,
+  maxPixels:10e12
+});
+
+// Visualise  basemaps
+// Map.addLayer(elevation,{min:100, max: 500}, 'Elevation',false)
+Map.addLayer(lc_probav2019,{}, 'Proba-V all classes',false);
+Map.addLayer(settl_diss, {}, 'Settlements', false);
+
+
+// ****************************************************
+//            Functions 
+// ****************************************************
+
+// Stack all LC classes into one image 
+// --> LC_image is the image that has one class (Proba-V: 'discrete classification', this will be split into several binary images (bands)
+// --> list_of_classes = ee.List() containing strings
+function make_binary_img(LC_image, list_of_classes ,prefix){
+  function classVal_to_binaryImg(Class, newimg) { 
+    newimg = ee.Image(newimg);
+    Class = ee.String(Class)
+    var class_val = ee.Number.parse(Class)
+    var band = LC_image.eq(class_val).rename(ee.String(prefix).cat(Class))
+           
+    return newimg.addBands(band);  
+    }
+  return ee.Image(list_of_classes.iterate(classVal_to_binaryImg, ee.Image([])))
+}
+
+
+function make_yearList (start, end){
+  var yearList = []
+  for (var i = start; i < end+1; i++) { yearList.push(i) }
+  return yearList
+}
+
+
+function reduce_imgCol(imgCol){
+  var mean = imgCol.reduce(ee.Reducer.mean())
+  var median = imgCol.reduce(ee.Reducer.median())
+  var sum = imgCol.reduce(ee.Reducer.sum())
+  // var sd = imgCol.reduce(ee.Reducer.stdDev())
+  
+  return mean.addBands(sum).addBands(median)
+}
+
+
+
+function aggregate_annually(imgCol, year_range){
+  return ee.ImageCollection.fromImages(
+      year_range.map(function (y) {
+        var imgCol_filtered = imgCol.filter(ee.Filter.calendarRange(y, y, 'year'))
+                                  .filter(ee.Filter.calendarRange(rainy_season_start,rainy_season_end, 'month'))
+        var max = imgCol_filtered.reduce(ee.Reducer.max())
+        
+        return reduce_imgCol(imgCol_filtered).addBands(max)
+                .set('year', y).set('system:time_start',ee.Date(y.toString()).millis())
+      }))
+}
+
+
+
+function clipFunc(img){
+  return img.clip(bounds)
+} 
+
+

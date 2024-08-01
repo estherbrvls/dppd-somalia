@@ -1,0 +1,694 @@
+/**** Start of imports. If edited, may not auto-convert in the playground. ****/
+var aoi_somaliland = 
+    /* color: #d63000 */
+    /* shown: false */
+    ee.Geometry.Polygon(
+        [[[42.6969273382277, 10.626955425838203],
+          [42.7298863226027, 10.500053863180446],
+          [42.75460556088395, 10.367696754966003],
+          [42.8232701116652, 10.227174959570684],
+          [42.9331333929152, 10.156890683221844],
+          [43.06222274838395, 10.135261639130054],
+          [43.15011337338395, 10.086590957524598],
+          [43.27645614682145, 10.032503796932806],
+          [43.34237411557145, 9.981112625610626],
+          [43.49068954525895, 9.897246472518834],
+          [43.5263951116652, 9.767346997456965],
+          [43.61703231869645, 9.767346997456965],
+          [43.8779576116652, 9.73757120124576],
+          [44.03451278744645, 9.64552016622288],
+          [44.21578720150895, 9.710499990852151],
+          [44.4272740179152, 9.67259662020326],
+          [44.51241806088395, 9.591360739592723],
+          [44.8117955022902, 9.542609856494792],
+          [44.8777134710402, 9.447796539061525],
+          [44.9765904241652, 9.474888734258311],
+          [44.9436314397902, 9.569694543639008],
+          [45.33089950619645, 9.837715550024717],
+          [45.45174911557145, 9.894540755108219],
+          [45.5423863226027, 9.851246249382154],
+          [45.6852085882277, 9.742985180135944],
+          [45.6852085882277, 9.634688975344446],
+          [45.7346470647902, 9.577819529162905],
+          [45.7676060491652, 9.426121247644938],
+          [45.8170445257277, 9.464052112385957],
+          [45.90218856869645, 9.46134290351701],
+          [45.9378941351027, 9.371927069547828],
+          [46.00655868588395, 9.296041015235366],
+          [46.19881942807145, 9.258091809249843],
+          [46.1359680651578, 9.616901175455844],
+          [46.1634338854703, 9.671056505666439],
+          [46.07828984250155, 9.86594314330297],
+          [46.1469543932828, 9.86323716840692],
+          [46.41337285031405, 9.884884344922003],
+          [46.3831604479703, 10.549824896390849],
+          [45.7679260729703, 10.54172432783415],
+          [45.2845276354703, 10.35265088636339],
+          [45.04008183468905, 10.412086351346021],
+          [44.98515019406405, 10.33373723664987],
+          [44.52921757687655, 10.298608868175071],
+          [44.26554570187655, 10.406683594390522],
+          [44.18314824093905, 10.463407866943163],
+          [44.1199768542203, 10.395877799827772],
+          [43.9881409167203, 10.37426508939521],
+          [43.84257206906405, 10.466108764557791],
+          [43.69425663937655, 10.528222906690429],
+          [43.5706604479703, 10.474211316263844],
+          [43.38663945187655, 10.320226789695784],
+          [43.12846074093905, 10.38507163137218],
+          [42.9554260729703, 10.552525038520095],
+          [42.8510559557828, 10.587624726986277],
+          [42.9499329089078, 10.703694996148602],
+          [43.0378235339078, 10.814325278235486],
+          [43.06803593625155, 10.941095154500683],
+          [42.9279602526578, 10.959971151699436]]]),
+    aoi_small = 
+    /* color: #d63000 */
+    /* displayProperties: [
+      {
+        "type": "rectangle"
+      }
+    ] */
+    ee.Geometry.Polygon(
+        [[[44.779288891276174, 9.919411229666384],
+          [44.779288891276174, 9.813202284494524],
+          [44.88297236295586, 9.813202284494524],
+          [44.88297236295586, 9.919411229666384]]], null, false),
+    cluster_x18 = ee.Image("users/estherbarvels/DPPD/somaliland/Cluster/clusters_xmeans_18"),
+    PDs = /* color: #d63000 */ee.Geometry.MultiPoint(
+        [[44.258828865942654, 10.30800347083172],
+         [44.665323006567654, 10.221519559841592],
+         [44.668069588598904, 10.197191709382636],
+         [44.830117928442654, 9.86993855707304],
+         [44.830117928442654, 9.740028364695887],
+         [44.766946541723904, 9.764390398123194],
+         [44.780679451880154, 9.694006342212669],
+         [44.695535408911404, 9.6723467327463],
+         [44.717508065161404, 9.637146892090817],
+         [44.901529061255154, 9.531525387223136],
+         [45.110269295630154, 10.037663309483333],
+         [45.082803475317654, 10.010616768818581],
+         [46.085305916723904, 9.680469250007532]]);
+/***** End of imports. If edited, may not auto-convert in the playground. *****/
+/*
+ Data Powered Positive Deviance 
+ 
+ This script identifies and exports the positive deviances by using SAVI z-scores as the performance measure.
+ It relies on homogenous grouping (clustered groups) which are based on land cover types and amount of rainfall, see https://code.earthengine.google.com/2feac9c68bfdc122d93b441c1af1c0fd.
+    
+  Note: Use the inspector to print SAVI time series for pixels within the settlement buffer zones.
+  Use the aoi_small geometry (move to desired location) to visualise SAVI z-score on pixel level
+*/
+
+
+// Colour palette constants
+var palette = ['red', 'white', 'green']
+var palette_redToGreen =  ["ff0000","fb8200","ffe108","60e010","00800a"] // red to green 
+var palette_colorblind = ['DA0606', 'FFC647','FFFFFF', '8DACFF', '205DFF'] // red to blue 
+var palette_categorical = ['a6cee3','1f78b4','b2df8a','33a02c','fb9a99','e31a1c','fdbf6f','ff7f00','cab2d6','6a3d9a','ffff99','b15928']
+
+// Select a colour palette
+var palette_selected = palette_redToGreen
+
+// ****************************************************
+//            Define area
+// ****************************************************
+
+
+var settlements_fc = ee.FeatureCollection("users/estherbarvels/DPPD/somaliland/SOM_Settlements_west_Golis_UTM38N_buffer_5k")
+                    .select('object_id', 'NAME_min')
+                    
+print('number of settlements:',settlements_fc.size())
+var settl_diss = settlements_fc.geometry().dissolve()
+// print(settl_diss)
+var zones_fc = ee.FeatureCollection("users/estherbarvels/DPPD/somaliland/SO_LHZ_2015")
+var zone_westGolis = zones_fc.filterMetadata('LZNAMEEN', 'equals', 'West Golis Pastoral').first().geometry()
+
+// var bounds = zone_westGolis
+// var bounds = aoi_small
+var bounds= aoi_somaliland
+
+var boundsArea = bounds.area()
+var boundsAreaSqKm = ee.Number(boundsArea).divide(1e6).round()
+print('bounds area (km²)', boundsAreaSqKm)
+
+// ****************************************************
+//        Land cover and elevation datasets
+// ****************************************************
+
+
+var lc_probav2019 = ee.Image('COPERNICUS/Landcover/100m/Proba-V-C3/Global/2019').select('discrete_classification')
+var elevation = ee.Image("CGIAR/SRTM90_V4").clip(bounds)
+
+// ****************************************************
+//             Precipitation dataset
+// ****************************************************
+
+var from_ = '2016-01-01'
+var until_ = '2020-11-30'
+
+var start_year = 2016
+var end_year = 2020
+var yearList = make_yearList(start_year, end_year)
+
+
+// Define start and end month of rainy season
+var rainy_season_start = 4
+var rainy_season_end = 11
+var chirps_daily = ee.ImageCollection('UCSB-CHG/CHIRPS/DAILY')
+                  .filter(ee.Filter.date(from_, until_)).filter(ee.Filter.calendarRange(rainy_season_start,rainy_season_end,'month'))
+                  .map(clipFunc)
+                  
+// Aggregate precipitation  annually
+var precip_annually = aggregate_annually(chirps_daily, yearList)
+var precip_seasonalSum_5ymean = precip_annually.select('precipitation_sum').reduce(ee.Reducer.mean()).rename('mean')
+
+
+
+// ****************************************************
+//             Load exported clusters
+// ****************************************************
+
+// Select exported cluster image 
+var cluster_img = cluster_x18
+
+// Set number of clusters
+var number_of_clusters = 18
+
+print('cluster_img', cluster_img)
+print('Cluster img: Min, max class value',cluster_img.reduceRegion({reducer: ee.Reducer.minMax(), geometry: bounds, scale: 100}))
+print('set number of classes:', number_of_clusters)
+
+
+// ****************************************************
+//              Sentinel-2 SAVI
+// ****************************************************
+var s2_col = ee.ImageCollection('COPERNICUS/S2')
+      .filterBounds(bounds)
+      .filterDate(from_, until_)
+      .map(clipFunc)
+      .sort('system:time_start');
+      
+print('First date in Sentinel-2 collection', s2_col.first().date())
+
+
+// Mask clouds
+var s2_masked = s2_col.map(maskS2clouds)
+
+// Rename bands and calculate SAVI
+var savi_col = s2_masked.select(['B2','B3','B4', 'B8'], ['blue','green','red','nir']) 
+                    .map(function(img){return addIndices(img)})
+                    .select('savi')
+
+// Get list of monthly dates
+var date_range_monthly = make_date_range_monthly(ee.Date(from_),ee.Date(until_))
+
+// Calculate monthly medians
+var savi_monthly = aggregate_monthly(savi_col, date_range_monthly).select('savi_median')
+
+
+// Visualise all months
+var listOfImages = savi_monthly.toList(savi_monthly.size()) 
+
+// Get the size of the image list (this is a server side ee.Number object).
+var len = listOfImages.size();
+
+// Aggregate monthly medians to sum of monthly medians
+var savi_sum = aggregate_annually(savi_monthly, yearList).select('savi_median_sum') 
+print('savi_sum', savi_sum)
+
+// Convert imgcol to list
+var savi_sum_list = savi_sum.toList(savi_sum.size())
+
+// Make new band names
+var savi_bandNames = make_new_bandNames('savi_sum_', start_year, end_year)
+// print('savi_bandNames', savi_bandNames)
+
+// Convert image collection to image
+var savi_img = savi_sum.toBands().rename(savi_bandNames)
+// print('savi_img', savi_img)
+
+
+// ****************************************************
+//      Compute the potentials per year per cluster
+// ****************************************************
+
+// Get dictionary of potentials for each year (list of 5 dicts each containing n potential-values)
+
+var dict_list = savi_sum_list.map(function(savi_img){
+
+  var image = ee.Image(savi_img).addBands(cluster_img);
+  var potentials = image.reduceRegion({
+    reducer: ee.Reducer.percentile([90]).group({
+      groupField: 1,
+      groupName: 'cluster',
+    }),
+    geometry: bounds,
+    scale: 100, 
+    maxPixels: 10e12
+  });
+  var groups = ee.List(potentials.get('groups'))
+  var keys = groups.map(function(i){return ee.Number(ee.Dictionary(i).get('cluster')).format()})
+  var values = groups.map(function(i){return ee.Dictionary(i).get('p90')})
+
+
+  return ee.Dictionary.fromLists(keys, values)
+})
+print('Dictionary of n potential values for each year', dict_list)
+
+
+// convert into list that contains list of potentials for each cluster (shape: 5 x n)
+var n = number_of_clusters-1
+
+var indexList_cl = ee.List.sequence(0, n)
+var map_m = function(i) {
+  i = ee.Number(i).format('%.0f') // as we get the indices from a dictionary, which are strings, not ints
+  var indexList_years = ee.List.sequence(0, 4)//2016, 2017, ..., 2020
+  
+  var values_cluster = indexList_years.map(function(j) {
+    return  ee.Dictionary(dict_list.get(j)).get(i) // value for cluster i in year j 
+    
+  })
+  return values_cluster
+}
+ 
+var savi_potentials_list = indexList_cl.map(map_m)
+print('Potential values per cluster',savi_potentials_list)
+
+
+// ****************************************************
+//      Compute difference images per cluster
+// ****************************************************
+
+var map_m = function(i) {
+  i = ee.Number(i) // as we get the indices from a dictionary, which are strings, not ints
+  var indexList_years = ee.List.sequence(0, 4)//2016, 2017, ..., 2020
+  
+  var diff_images_cluster = indexList_years.map(function(j) {
+    var p = ee.Number(ee.List(savi_potentials_list.get(i)).get(j))
+    var savi = ee.Image(savi_sum_list.get(j)) // savi sum of year j 
+    
+    var mask = savi.gt(0)
+    var potential = mask.multiply(p)//.add(image.multiply(mask.not()))
+    var diff_image = savi.subtract(potential).toFloat().copyProperties(savi,['system:time_start'])
+    
+    return ee.Image(diff_image)// value for cluster i in year j 
+    
+  })
+  return diff_images_cluster
+}
+ 
+var result_diff_images = indexList_cl.map(map_m)
+// print('result_diff_images',result_diff_images)
+
+
+// var diff_images_cl0 = ee.ImageCollection(ee.List(result_diff_images.get(0)))
+// print('diff_images_cl0',diff_images_cl0)
+// Map.addLayer(diff_images_cl0.first(),{},'diff_images_cl0.first()')
+
+
+// ****************************************************
+//           Compute slope and pearson
+// ****************************************************
+
+var map_m = function(i) {
+  i = ee.Number(i) // as we get the indices from a dictionary, which are strings, not ints
+  var indexList_years = ee.List.sequence(0, 4)//2016, 2017, ..., 2020
+  
+  var diff_images_list = ee.List(result_diff_images.get(i))
+  diff_images_list = addConstantBand(diff_images_list, 5)
+
+  var slope = diff_images_list.select(['constant', 'savi_median_sum']).reduce(ee.Reducer.linearFit()).select('scale').rename('slope')
+  var pearson = diff_images_list.select(['constant', 'savi_median_sum']).reduce(ee.Reducer.pearsonsCorrelation());
+  var sig_slope = slope.multiply(pearson.select('p-value').lt(0.05)).rename('sig_slope') // assign all insignificant slopes zero
+  
+  return slope.addBands(pearson.select('correlation')).addBands(sig_slope)
+}
+
+var slope_images_list = indexList_cl.map(map_m)
+var slope_images = ee.ImageCollection(slope_images_list).select('slope').toBands()
+
+
+// Stack all cluster classes into one img as binary bands 
+var prefix='cl_'
+var cluster_classes = indexList_cl.map(function(i){ return ee.Number(i).format('%.0f') }) // convert ints to strings
+
+var cluster_stack = make_binary_img(cluster_img, cluster_classes,prefix)
+
+var cluster_stack_masked = cluster_stack.updateMask(cluster_stack.eq(1)) // mask 0 pixels for each cluster
+var slope_images_masked = slope_images.multiply(cluster_stack_masked)
+
+
+// ****************************************************
+//           Compute z-scores
+// ****************************************************
+
+var slope_mean_dict = slope_images_masked.reduceRegion({
+    reducer: ee.Reducer.mean(),
+    geometry: bounds,
+    scale: 100, // CHANGE THIS TO 10
+    maxPixels: 10e12
+  });
+  
+
+var slope_stdDev_dict = slope_images_masked.reduceRegion({
+    reducer: ee.Reducer.stdDev(),
+    geometry: bounds,
+    scale: 100, 
+    maxPixels: 10e12
+  });
+// print('slope_mean_dict', slope_mean_dict)  
+// print('slope_stdDev_dict', slope_stdDev_dict)
+
+
+// map over band names that are the same in slope images and dictionaries
+var bandNames = slope_images_masked.bandNames()
+// print('bandnames',bandNames)
+
+var z_score_images = bandNames.map(function(bandName){
+  var slope_img = slope_images_masked.select([bandName])
+  var mean = ee.Number(slope_mean_dict.get(bandName))
+  var stdDev = ee.Number(slope_stdDev_dict.get(bandName))
+  
+  var z_score_img = slope_img.subtract(mean).divide(stdDev).rename('zscore');
+  return z_score_img
+})
+
+// print('z_score_images', z_score_images)
+
+
+var z_score_images_unmasked = ee.ImageCollection(z_score_images.map(function(image){
+  return ee.Image(image).unmask().clip(bounds)
+}))
+// print('z_score_images_unmasked', z_score_images_unmasked)
+
+var z_scores_all = z_score_images_unmasked.sum() // merge z-score images into one image 
+
+
+// Clip to settlement buffers
+var z_scores_all = z_scores_all.clip(settl_diss)
+
+
+
+// *************************************************************
+//  Identify type 1 PD's: mean z-score per settlement (per group)
+// *************************************************************
+
+var mean_zscore_fc = z_scores_all.reduceRegions({
+  'collection': settlements_fc,
+  'reducer': ee.Reducer.mean(),
+  'tileScale': 16, // this is the max.
+  'scale': 100 // changing to 10 ledas to exceeded user memory when trying to export
+  
+  }).sort('mean', false)
+
+ 
+var mean_zScore_list = mean_zscore_fc.toList(mean_zscore_fc.size()).map(function(f){ return ee.Feature(f).get('mean') });
+// print('mean_zscore_fc.first()', mean_zscore_fc.first())
+// print('mean_zScore_list', mean_zScore_list)
+
+
+// *************************************************************
+//  Identify type 2 PD's: proportion of PD pixels per settlement (per group)
+// *************************************************************
+
+var threshold = 2
+var zScore_binary = z_scores_all.gt(threshold)
+var zScore_above = zScore_binary.updateMask(zScore_binary.eq(1))
+var zScore_below = zScore_binary.updateMask(zScore_binary.eq(0))
+
+var count_fc = zScore_binary.addBands(zScore_above).addBands(zScore_below).rename(['total','above','below'])
+    .reduceRegions({
+      'collection': settlements_fc,
+      'reducer': ee.Reducer.count(),
+      'tileScale': 16,
+      'scale': 100, // changing to 10 ledas to exceeded user memory when trying to export
+      })
+// print('count_fc', count_fc)
+
+var prop_fc = count_fc.map(function(f){
+      var prop = ee.Number(ee.Feature(f).get('above')).divide(ee.Number(ee.Feature(f).get('total')))
+      return f.set('prop', prop)})
+      .sort('prop', false) // true: ascending, false: descending
+
+
+// ****************************************************
+//        Get the top 10 per group and type
+// ****************************************************
+
+var mean_zscore_fc_top10 = mean_zscore_fc.limit(10)
+var prop_fc_top10 = prop_fc.limit(15)
+
+print('Settlement with the highest mean - Type 1', mean_zscore_fc_top10.first())
+print('Settlement with yhe highest mean - Type 2', prop_fc_top10.first())
+
+
+// ****************************************************
+// Export the PD-feature collections as csv
+// ****************************************************
+
+Export.table.toDrive({
+  collection: mean_zscore_fc_top10,
+  selectors: ['NAME_min', 'object_id', 'prop'],
+  description: 'settl_mean_zscore',
+  fileFormat: 'CSV',
+  folder: 'DPPD_somalia'
+
+});
+
+Export.table.toDrive({
+  collection: prop_fc_top10,
+  selectors: ['NAME_min', 'object_id', 'prop'],
+  description: 'settl_prop_zscore_gt2',
+  fileFormat: 'CSV',
+  folder: 'DPPD_somalia'
+
+});
+
+
+// ****************************************************
+//      Visualise 
+// ****************************************************
+Map.addLayer(elevation,{min:100, max: 500}, 'Elevation',false)
+Map.addLayer(lc_probav2019,{}, 'Proba-V all classes',false);
+Map.addLayer(cluster_x18, {palette: palette_categorical, min:0, max: 17, band:['cluster']}, 'cluster xMeans 18',false); 
+
+Map.addLayer(z_scores_all.clip(aoi_small),{palette: palette_selected, min:-4,max:4},'z scores small AOI')
+Map.addLayer(z_scores_all.clip(settl_diss),{palette: palette_selected, min:-4,max:4},'z scores all settlements',false)
+
+
+
+var empty = ee.Image().byte(); 
+var filled_zScore = empty.paint({ featureCollection: mean_zscore_fc, color: 'mean'})
+var filled_z_prop = empty.paint({ featureCollection: prop_fc, color: 'prop'}) 
+
+var filled_zScore_top10 = empty.paint({ featureCollection: mean_zscore_fc_top10, color: 'mean'})
+var filled_z_prop_top10 = empty.paint({ featureCollection: prop_fc_top10, color: 'prop'}) 
+
+Map.addLayer(zScore_binary,{min: 0, max: 1}, 'z > 2 binary',false)
+
+Map.addLayer(filled_z_prop, {palette: palette_selected, min:0,max:0.3},' z > 2 proportion', false); 
+Map.addLayer(filled_zScore, {palette: palette_selected, min:-2.5,max:2.5}, 'mean z', false);
+
+// Visualise the top 10 PD's
+Map.addLayer(filled_z_prop_top10, {palette: palette_selected, min:0,max:0.3},'top 10 z > 2 proportion '); 
+Map.addLayer(filled_zScore_top10, {palette: palette_selected, min:-2.5,max:2.5},'top 10 mean z ');
+
+var outline = empty.paint({
+  featureCollection: settlements_fc,
+  color: 1,
+  width: 3
+});
+Map.addLayer(outline, {palette: '000000'}, 'Settlements');
+
+Map.setOptions('HYBRID')
+Map.centerObject(aoi_small,11)
+
+// ****************************************************
+//      Functions 
+// ****************************************************
+
+// Stack all LC classes into one image 
+// --> LC_image is the image that has one clsas (Proba-V: 'discrete classification', this will be split into several binary images (bands)
+// --> list_of_classes = ee.List() containing strings
+function make_binary_img(LC_image, list_of_classes ,prefix){
+  function classVal_to_binaryImg(Class, newimg) { 
+    newimg = ee.Image(newimg);
+    Class = ee.String(Class)
+    var class_val = ee.Number.parse(Class)
+    var band = LC_image.eq(class_val).rename(ee.String(prefix).cat(Class))
+           
+    return newimg.addBands(band);  
+    }
+  return ee.Image(list_of_classes.iterate(classVal_to_binaryImg, ee.Image([])))
+}
+
+
+
+
+function make_yearList (start, end){
+  var yearList = []
+  for (var i = start; i < end+1; i++) { yearList.push(i) }
+  return yearList
+}
+
+
+function make_new_bandNames(name_str, start, end){
+  var newBands = []
+  for (var i = start; i < end+1; i++) {
+  newBands.push(name_str.concat(i.toString()))
+  }
+  return newBands
+}
+
+
+
+function reduce_imgCol(imgCol){
+  var mean = imgCol.reduce(ee.Reducer.mean())
+  var median = imgCol.reduce(ee.Reducer.median())
+  var sum = imgCol.reduce(ee.Reducer.sum())
+  // var sd = imgCol.reduce(ee.Reducer.stdDev())
+  
+  return mean.addBands(sum).addBands(median)
+}
+
+function aggregate_monthly(imgCol, date_range){
+  return ee.ImageCollection.fromImages(
+      date_range.map(function (date) {
+        date = ee.Date(date)
+        imgCol = imgCol.filterDate(date, date.advance(1,'month'))
+        return reduce_imgCol(imgCol).set('date', date.format('YYYY-MM')).set('system:time_start', date.millis())}))
+        
+        // if only need monthly sum
+        // return imgCol.reduce(ee.Reducer.sum()).set('date', date.format('YYYY-MM')).set('system:time_start', date.millis())}))
+}
+
+function aggregate_annually(imgCol, year_range){
+  return ee.ImageCollection.fromImages(
+      year_range.map(function (y) {
+        var imgCol_filtered = imgCol.filter(ee.Filter.calendarRange(y, y, 'year'))
+                                  .filter(ee.Filter.calendarRange(rainy_season_start,rainy_season_end, 'month'))
+        var max = imgCol_filtered.reduce(ee.Reducer.max())
+        
+        return reduce_imgCol(imgCol_filtered).addBands(max)
+                .set('year', y).set('system:time_start',ee.Date(y.toString()).millis())
+      }))
+}
+
+
+function make_date_range_monthly(start,end){
+  var n_months = end.difference(start,'month').round().subtract(1);
+  var range = ee.List.sequence(0,n_months,1); 
+  var make_datelist = function (n) {
+    return start.advance(n,'month')
+  };
+  return range.map(make_datelist);
+}
+
+function addConstantBand(imgcol_list, length){
+  var imgcol = []
+  // length.evaluate(function(l) {
+  for (var i = 0; i < length; i++){
+      
+      var img = ee.Image(imgcol_list.get(i)).addBands(ee.Image(i).toFloat())
+      imgcol.push(img)
+  }
+  // })
+  return ee.ImageCollection(imgcol)
+}
+
+
+
+function clipFunc(img){
+  return img.clip(bounds)
+} 
+
+
+function addIndices (img){
+    // var ndvi = img.expression('float(b("nir") - b("red")) / (b("nir") + b("red"))').rename('ndvi')
+    var savi = img.expression('(float(b("nir") - b("red")) / (b("nir") + b("red") + 0.9) * 1.9)').rename('savi')
+    return img.addBands(savi);
+    // return img.addBands([ndvi,savi]);
+}
+
+
+
+function maskS2clouds(image) {
+  var qa = image.select('QA60');
+
+  // Bits 10 and 11 are clouds and cirrus, respectively.
+  var cloudBitMask = 1 << 10;
+  var cirrusBitMask = 1 << 11;
+
+  // Both flags should be set to zero, indicating clear conditions.
+  var mask = qa.bitwiseAnd(cloudBitMask).eq(0)
+      .and(qa.bitwiseAnd(cirrusBitMask).eq(0));
+
+  return image.updateMask(mask);//.divide(1000)
+}
+
+
+
+
+
+
+
+//click on point to get time series
+var i=0;
+var print_point = function(coords, map) {
+  i++;
+  var coord_array = Object.keys(coords).map(function (key) { return coords[key]; });
+  var point = ee.Geometry.Point(coord_array);
+  print('point ' + i, point);
+  Map.addLayer(point, {color: 'red'});
+  // put i somewhere near that point on the map
+  // Plot the time series data at the ROI..
+  
+  var chart = ui.Chart.image.series(savi_col.select(['savi']), point, ee.Reducer.mean(), 10)
+    .setOptions({
+      title: 'Sentinel-2 SAVI',
+      lineWidth: 1,
+      pointSize: 3,
+    })
+  print(chart)
+  var chart = ui.Chart.image.series(savi_monthly.select('savi_median'), point, ee.Reducer.mean(), 10)
+    .setOptions({
+      title: 'Sentinel-2 SAVI monthly',
+      lineWidth: 1,
+      pointSize: 3,
+    })
+  print(chart)
+
+  var chart = ui.Chart.image.series(savi_sum.select('savi_median_sum'), point, ee.Reducer.mean(), 10)
+    .setOptions({
+      title: 'Sentinel-2 SAVI seasonal sum',
+      lineWidth: 1,
+      pointSize: 3,
+    })
+  print(chart)
+  
+  // var chart = ui.Chart.image.series(diff_images0.select('savi_median_sum'), point, ee.Reducer.mean(), 10)
+  //   .setOptions({
+  //     title: 'Sentinel-2 SAVI difference (SAVI_actual - SAVI_potential) group 0',
+  //     lineWidth: 1,
+  //     pointSize: 3,
+  //   })
+  // print(chart)
+  
+  
+  
+  // var chart = ui.Chart.image.series(chirps_daily.select(['precipitation']), point, ee.Reducer.mean(), 30)
+  //   .setOptions({
+  //     title: 'Precipitation daily sum (mm)',
+  //     lineWidth: 1,
+  //     pointSize: 3,
+  //   }).setChartType('ColumnChart');
+  // print(chart)
+
+  
+};
+
+
+Map.onClick(print_point);
+
+
